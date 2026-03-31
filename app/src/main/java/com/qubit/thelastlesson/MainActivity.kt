@@ -32,15 +32,7 @@ class MainActivity : AppCompatActivity(), OutsideSchoolSceneView.SceneListener {
                 binding.scenePanel.visibility = android.view.View.VISIBLE
                 binding.scenePanel.alpha = 0f
                 binding.scenePanel.animate().alpha(1f).setDuration(350L).start()
-            } else {
-                binding.outsideScene.detectiveProgress += 0.12f
             }
-        }
-        binding.moveBackButton.setOnClickListener {
-            binding.outsideScene.detectiveProgress -= 0.12f
-        }
-        binding.moveForwardButton.setOnClickListener {
-            binding.outsideScene.detectiveProgress += 0.12f
         }
     }
 

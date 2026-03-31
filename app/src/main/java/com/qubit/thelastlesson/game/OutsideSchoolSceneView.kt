@@ -9,8 +9,11 @@ import android.graphics.RectF
 import android.graphics.Shader
 import android.os.SystemClock
 import android.util.AttributeSet
+import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import androidx.core.graphics.toColorInt
+import kotlin.math.abs
 import kotlin.random.Random
 
 class OutsideSchoolSceneView @JvmOverloads constructor(
@@ -18,6 +21,10 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
 ) : View(context, attrs, defStyleAttr) {
+    companion object {
+        private const val TAG = "OutsideSchoolScene"
+        private const val PLAYER_SPEED = 0.42f
+    }
 
     interface SceneListener {
         fun onDoorReached()
@@ -29,9 +36,12 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
     var detectiveProgress: Float = 0.08f
         set(value) {
             field = value.coerceIn(0f, 1f)
+            contentDescription = "Detective progress ${(field * 100).toInt()} percent"
             invalidate()
             maybeNotifyDoorReached()
         }
+
+    private var detectiveTargetProgress: Float = detectiveProgress
 
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val rainPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -101,6 +111,7 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
         lastFrameTime = now
 
         rainOffset = (rainOffset + delta * 0.55f) % 90f
+        updateMovement(delta)
         updateStormState(now, delta)
 
         drawSky(canvas)
@@ -112,6 +123,24 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
         drawLightningFlash(canvas)
 
         postInvalidateOnAnimation()
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            performClick()
+            if (event.y >= playableGroundTop()) {
+                detectiveTargetProgress = progressForTap(event.x)
+                Log.d(TAG, "Tap move target=${"%.2f".format(detectiveTargetProgress)}")
+                invalidate()
+            }
+            return true
+        }
+        return super.onTouchEvent(event)
+    }
+
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
     }
 
     private fun drawSky(canvas: Canvas) {
@@ -189,9 +218,7 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
 
     private fun drawDetective(canvas: Canvas) {
         val groundTop = height * 0.68f
-        val doorX = width * 0.5f
-        val startX = width * 0.12f
-        val currentX = startX + ((doorX - startX) * detectiveProgress)
+        val currentX = detectiveXForProgress(detectiveProgress)
         val feetY = groundTop + height * 0.14f
         canvas.drawCircle(currentX, feetY - 92f, 20f, detectivePaint)
         canvas.drawRect(currentX - 22f, feetY - 82f, currentX + 22f, feetY - 16f, detectiveCoatPaint)
@@ -203,7 +230,7 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
 
     private fun drawObjectiveHint(canvas: Canvas) {
         textPaint.alpha = 220
-        canvas.drawText("Move toward the front door", width * 0.08f, height * 0.92f, textPaint)
+        canvas.drawText("Tap the ground to move", width * 0.08f, height * 0.92f, textPaint)
     }
 
     private fun drawLightningFlash(canvas: Canvas) {
@@ -224,6 +251,34 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
             }
         }
     }
+
+    private fun updateMovement(delta: Long) {
+        val distance = detectiveTargetProgress - detectiveProgress
+        if (abs(distance) < 0.002f) {
+            detectiveProgress = detectiveTargetProgress
+            return
+        }
+        val step = (PLAYER_SPEED * delta / 1000f).coerceAtLeast(0.01f)
+        detectiveProgress = when {
+            distance > 0f -> (detectiveProgress + step).coerceAtMost(detectiveTargetProgress)
+            else -> (detectiveProgress - step).coerceAtLeast(detectiveTargetProgress)
+        }
+    }
+
+    private fun progressForTap(tapX: Float): Float {
+        val clampedX = tapX.coerceIn(playableStartX(), playableEndX())
+        return (clampedX - playableStartX()) / (playableEndX() - playableStartX())
+    }
+
+    private fun detectiveXForProgress(progress: Float): Float {
+        return playableStartX() + ((playableEndX() - playableStartX()) * progress)
+    }
+
+    private fun playableGroundTop(): Float = height * 0.68f
+
+    private fun playableStartX(): Float = width * 0.12f
+
+    private fun playableEndX(): Float = width * 0.5f
 
     private fun maybeNotifyDoorReached() {
         val reached = detectiveProgress >= 0.92f
