@@ -9,4 +9,11 @@
     <string name="outside_scene_action">Step Into the Storm</string>
     <string name="outside_scene_status">Rain slides across the school gates.</string>
     <string name="outside_scene_door_hint">The front entrance is within reach.</string>
+    <string name="outside_scene_enter_prompt">The front door creaks under your hand. Enter the school.</string>
+    <string name="outside_scene_enter_action">Enter School</string>
+    <string name="school_entrance_title">School Entrance</string>
+    <string name="school_entrance_description">The front hall swallows the storm behind you. Lockers disappear into the dark, and the dead lights leave the entrance in a cold, uneasy silence.</string>
+    <string name="school_entrance_action">Inside the School</string>
+    <string name="school_entrance_heading">School Entrance</string>
+    <string name="school_entrance_visual">Dark hallway\nflickering shadows\nwet footprints</string>
 </resources>

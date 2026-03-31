@@ -14,6 +14,7 @@ class MainActivity : AppCompatActivity(), OutsideSchoolSceneView.SceneListener {
     }
 
     private lateinit var binding: ActivityMainBinding
+    private var canEnterSchool = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +35,10 @@ class MainActivity : AppCompatActivity(), OutsideSchoolSceneView.SceneListener {
                 binding.scenePanel.animate().alpha(1f).setDuration(350L).start()
             }
         }
+        binding.enterDoorButton.setOnClickListener {
+            if (!canEnterSchool) return@setOnClickListener
+            enterSchool()
+        }
     }
 
     private fun showScreen(screen: AppScreen) {
@@ -46,7 +51,34 @@ class MainActivity : AppCompatActivity(), OutsideSchoolSceneView.SceneListener {
         Toast.makeText(this, R.string.outside_scene_door_hint, Toast.LENGTH_SHORT).show()
     }
 
+    override fun onDoorRangeChanged(inRange: Boolean) {
+        canEnterSchool = inRange
+        binding.enterDoorButton.visibility = if (inRange) android.view.View.VISIBLE else android.view.View.GONE
+        binding.enterDoorButton.isEnabled = inRange
+        binding.stormStatus.text = if (inRange) {
+            getString(R.string.outside_scene_enter_prompt)
+        } else {
+            getString(R.string.outside_scene_status)
+        }
+    }
+
     override fun onStormLineChanged(line: String) {
-        binding.stormStatus.text = line
+        if (!canEnterSchool) {
+            binding.stormStatus.text = line
+        }
+    }
+
+    private fun enterSchool() {
+        showScreen(AppScreen.SchoolEntrance)
+        binding.scenePanel.animate()
+            .alpha(0f)
+            .setDuration(250L)
+            .withEndAction {
+                binding.scenePanel.visibility = android.view.View.GONE
+                binding.interiorPanel.visibility = android.view.View.VISIBLE
+                binding.interiorPanel.alpha = 0f
+                binding.interiorPanel.animate().alpha(1f).setDuration(350L).start()
+            }
+            .start()
     }
 }

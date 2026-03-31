@@ -90,6 +90,65 @@
             android:text="@string/outside_scene_status"
             android:textColor="@color/body_text"
             android:textSize="14sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/enterDoorButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/outside_scene_enter_action"
+            android:textColor="@color/button_text"
+            android:visibility="gone"
+            app:backgroundTint="@color/button_background"
+            app:cornerRadius="12dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/interiorPanel"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/interiorHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:gravity="center"
+            android:text="@string/school_entrance_heading"
+            android:textAllCaps="true"
+            android:textColor="@color/title_text"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="#1A1F29"
+            android:gravity="center"
+            android:padding="32dp"
+            android:text="@string/school_entrance_visual"
+            android:textColor="@color/body_text"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/interiorDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:text="@string/school_entrance_description"
+            android:textColor="@color/body_text"
+            android:textSize="16sp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

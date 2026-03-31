@@ -18,4 +18,9 @@ enum class AppScreen(
         descriptionRes = R.string.outside_scene_description,
         primaryActionRes = R.string.outside_scene_action,
     ),
+    SchoolEntrance(
+        titleRes = R.string.school_entrance_title,
+        descriptionRes = R.string.school_entrance_description,
+        primaryActionRes = R.string.school_entrance_action,
+    ),
 }

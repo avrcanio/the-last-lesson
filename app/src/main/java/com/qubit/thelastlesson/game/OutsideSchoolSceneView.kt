@@ -30,6 +30,7 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
 
     interface SceneListener {
         fun onDoorReached()
+        fun onDoorRangeChanged(inRange: Boolean)
         fun onStormLineChanged(line: String)
     }
 
@@ -112,10 +113,20 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
         color = "#11171B".toColorInt()
     }
     private val detectivePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = "#D4D6DB".toColorInt()
+        color = "#E7E3DA".toColorInt()
     }
     private val detectiveCoatPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = "#786650".toColorInt()
+        color = "#6C5944".toColorInt()
+    }
+    private val detectiveHatPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = "#2A2F38".toColorInt()
+    }
+    private val detectiveShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = "#12161D".toColorInt()
+        alpha = 170
+    }
+    private val detectiveAccentPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = "#A58862".toColorInt()
     }
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = "#EAE7DE".toColorInt()
@@ -131,6 +142,8 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
     private var nextFlashAt = SystemClock.elapsedRealtime() + 2500L
     private var stormLineIndex = -1
     private var doorNotified = false
+    private var doorRangeNotified = false
+    private var movementDirection = 1f
     private val stormLines = listOf(
         "Rain batters the school roof.",
         "Thunder rolls somewhere behind the gym.",
@@ -389,13 +402,63 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
         val groundTop = height * 0.68f
         val currentX = detectiveXForProgress(detectiveProgress)
         val feetY = groundTop + height * 0.14f
+        val facing = if (movementDirection >= 0f) 1f else -1f
+
+        canvas.drawOval(currentX - 36f, feetY + 18f, currentX + 36f, feetY + 38f, detectiveShadowPaint)
         canvas.drawOval(currentX - 28f, feetY + 22f, currentX + 28f, feetY + 36f, puddlePaint)
-        canvas.drawCircle(currentX, feetY - 92f, 20f, detectivePaint)
-        canvas.drawRect(currentX - 22f, feetY - 82f, currentX + 22f, feetY - 16f, detectiveCoatPaint)
-        canvas.drawLine(currentX - 8f, feetY - 16f, currentX - 16f, feetY + 30f, detectivePaint.apply { strokeWidth = 8f })
-        canvas.drawLine(currentX + 8f, feetY - 16f, currentX + 16f, feetY + 30f, detectivePaint)
-        canvas.drawLine(currentX - 18f, feetY - 66f, currentX - 34f, feetY - 34f, detectivePaint)
-        canvas.drawLine(currentX + 18f, feetY - 66f, currentX + 34f, feetY - 34f, detectivePaint)
+
+        val coatPath = Path().apply {
+            moveTo(currentX - 20f, feetY - 92f)
+            lineTo(currentX + 18f, feetY - 92f)
+            lineTo(currentX + 28f, feetY - 22f)
+            lineTo(currentX + 10f, feetY + 12f)
+            lineTo(currentX - 6f, feetY - 4f)
+            lineTo(currentX - 24f, feetY + 12f)
+            lineTo(currentX - 34f, feetY - 22f)
+            close()
+        }
+        canvas.drawPath(coatPath, detectiveCoatPaint)
+
+        val collarPath = Path().apply {
+            moveTo(currentX - 14f, feetY - 92f)
+            lineTo(currentX - 2f, feetY - 68f)
+            lineTo(currentX - 20f, feetY - 56f)
+            close()
+            moveTo(currentX + 12f, feetY - 92f)
+            lineTo(currentX + 2f, feetY - 68f)
+            lineTo(currentX + 20f, feetY - 58f)
+            close()
+        }
+        canvas.drawPath(collarPath, detectiveAccentPaint)
+
+        canvas.drawCircle(currentX + (facing * 3f), feetY - 111f, 17f, detectivePaint)
+        canvas.drawRect(currentX - 8f, feetY - 98f, currentX + 8f, feetY - 86f, detectivePaint)
+
+        val hatPath = Path().apply {
+            moveTo(currentX - 24f, feetY - 119f)
+            lineTo(currentX - 10f, feetY - 138f)
+            lineTo(currentX + 8f, feetY - 138f)
+            lineTo(currentX + 24f, feetY - 119f)
+            lineTo(currentX + 10f, feetY - 122f)
+            lineTo(currentX + 4f, feetY - 108f)
+            lineTo(currentX - 14f, feetY - 108f)
+            lineTo(currentX - 18f, feetY - 121f)
+            close()
+        }
+        canvas.drawPath(hatPath, detectiveHatPaint)
+        canvas.drawRect(currentX - 30f, feetY - 120f, currentX + 26f, feetY - 114f, detectiveHatPaint)
+
+        detectiveShadowPaint.strokeWidth = 10f
+        canvas.drawLine(currentX - 8f, feetY - 6f, currentX - 18f, feetY + 28f, detectiveShadowPaint)
+        canvas.drawLine(currentX + 6f, feetY - 6f, currentX + 18f, feetY + 28f, detectiveShadowPaint)
+        detectivePaint.strokeWidth = 6f
+        canvas.drawLine(currentX - 12f, feetY - 72f, currentX - 32f, feetY - 44f, detectivePaint)
+        canvas.drawLine(currentX + 8f, feetY - 70f, currentX + 26f, feetY - 38f, detectivePaint)
+        canvas.drawLine(currentX + 26f, feetY - 38f, currentX + (facing * 44f), feetY - 18f, detectiveHatPaint)
+
+        detectiveAccentPaint.strokeWidth = 4f
+        canvas.drawLine(currentX - 4f, feetY - 66f, currentX + 8f, feetY - 26f, detectiveAccentPaint)
+        canvas.drawLine(currentX + 6f, feetY - 92f, currentX + 16f, feetY - 64f, detectiveAccentPaint)
     }
 
     private fun drawObjectiveHint(canvas: Canvas) {
@@ -450,6 +513,7 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
             detectiveProgress = detectiveTargetProgress
             return
         }
+        movementDirection = if (distance >= 0f) 1f else -1f
         val step = (PLAYER_SPEED * delta / 1000f).coerceAtLeast(0.01f)
         detectiveProgress = when {
             distance > 0f -> (detectiveProgress + step).coerceAtMost(detectiveTargetProgress)
@@ -496,6 +560,12 @@ class OutsideSchoolSceneView @JvmOverloads constructor(
     private fun playableEndX(): Float = width * 0.5f
 
     private fun maybeNotifyDoorReached() {
+        val inRange = detectiveProgress >= 0.86f
+        if (inRange != doorRangeNotified) {
+            doorRangeNotified = inRange
+            sceneListener?.onDoorRangeChanged(inRange)
+        }
+
         val reached = detectiveProgress >= 0.92f
         if (reached && !doorNotified) {
             doorNotified = true
