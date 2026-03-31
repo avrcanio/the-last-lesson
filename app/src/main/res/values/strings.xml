@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">The Last Lesson</string>
+    <string name="main_menu_title">Main Menu</string>
+    <string name="main_menu_description">The school is silent, the lights are failing, and something is waiting inside. Start the investigation when you are ready.</string>
+    <string name="main_menu_action">Start Game</string>
+    <string name="outside_scene_title">Outside the School</string>
+    <string name="outside_scene_description">A detective stands in the rain outside the abandoned school. Move toward the front entrance and watch the storm reveal the building.</string>
+    <string name="outside_scene_action">Step Into the Storm</string>
+    <string name="outside_scene_status">Rain slides across the school gates.</string>
+    <string name="outside_scene_move_back">Step Back</string>
+    <string name="outside_scene_move_forward">Move Forward</string>
+    <string name="outside_scene_door_hint">The front entrance is within reach.</string>
+</resources>
